@@ -116,25 +116,20 @@ const ProductTable = () => {
 
   async function uploadImage(file) {
     const fileName = `${Date.now()}_${file.name}`;
-    const { data, error } = await supabase.storage
-      .from("product-images")
-      .upload(fileName, file);
+    const folderName = "public";
+    const path = `${folderName}/${fileName}`;
+    const { data1, error } = await supabase.storage
+      .from("images")
+      .upload(path, file);
 
     if (error) {
       alert("Error uploading image: " + error.message);
       return null;
     }
 
-    const { publicURL, error: urlError } = supabase.storage
-      .from("product-images")
-      .getPublicUrl(fileName);
+    const { data } = supabase.storage.from("images").getPublicUrl(path);
 
-    if (urlError) {
-      alert("Error getting image URL: " + urlError.message);
-      return null;
-    }
-
-    return publicURL;
+    return data.publicUrl;
   }
 
   async function createProduct(product) {
@@ -150,7 +145,6 @@ const ProductTable = () => {
         })
         .single();
       if (error) throw error;
-      console.log(data, "this");
 
       return data;
     } catch (error) {
@@ -286,7 +280,12 @@ const ProductTable = () => {
           />
           <Button variant="contained" component="label" sx={{ marginTop: 2 }}>
             Upload Image
-            <input type="file" hidden onChange={handleImageChange} />
+            <input
+              type="file"
+              accept="image/jpg, images/png"
+              hidden
+              onChange={handleImageChange}
+            />
           </Button>
           {image && (
             <Box sx={{ marginTop: 2 }}>
