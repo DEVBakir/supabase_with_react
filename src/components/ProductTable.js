@@ -204,7 +204,16 @@ const ProductTable = () => {
           </TableHead>
           <TableBody>
             {products.map((product) => (
-              <TableRow key={product.id}>
+              <TableRow
+                key={product.id}
+                onClick={() => handleClickOpen(product)}
+                sx={{
+                  "&:hover": {
+                    backgroundColor: "#f5f5f5", // Hover color
+                    cursor: "pointer",
+                  },
+                }}
+              >
                 <TableCell component="th" scope="row">
                   {product.name}
                 </TableCell>
@@ -213,23 +222,31 @@ const ProductTable = () => {
                 <TableCell align="right">{product.quantity}</TableCell>
                 <TableCell align="right">
                   {product.img_url && (
-                    <img
-                      src={product.img_url}
-                      alt={product.name}
-                      style={{ width: 50, height: 50, objectFit: "cover" }}
-                    />
+                    <div className="image-zoom-container">
+                      <img
+                        src={product.img_url}
+                        alt={product.name}
+                        style={{ width: 50, height: 50, objectFit: "cover" }}
+                      />
+                    </div>
                   )}
                 </TableCell>
                 <TableCell align="right">
                   <IconButton
                     color="primary"
-                    onClick={() => handleClickOpen(product)}
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent row click from triggering
+                      handleClickOpen(product);
+                    }}
                   >
                     <EditIcon />
                   </IconButton>
                   <IconButton
                     color="secondary"
-                    onClick={() => handleDelete(product.id)}
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent row click from triggering
+                      handleDelete(product.id);
+                    }}
                   >
                     <DeleteIcon />
                   </IconButton>
@@ -282,7 +299,7 @@ const ProductTable = () => {
             Upload Image
             <input
               type="file"
-              accept="image/jpg, images/png"
+              accept="image/jpg, image/png"
               hidden
               onChange={handleImageChange}
             />

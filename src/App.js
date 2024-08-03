@@ -1,6 +1,7 @@
 import React from "react";
 import ProductTable from "./components/ProductTable";
 import { Container, Typography } from "@mui/material";
+import ProductCountDisplay from "./components/ProductCountDisplay";
 
 function App() {
   return (
@@ -8,6 +9,7 @@ function App() {
       <Typography variant="h4" gutterBottom>
         Product List
       </Typography>
+      <ProductCountDisplay />
       <ProductTable />
     </Container>
   );
