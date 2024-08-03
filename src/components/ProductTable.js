@@ -14,6 +14,8 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Box,
+  Typography,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -24,17 +26,23 @@ import { supabase } from "../supabaseClient";
 
 const ProductTable = () => {
   const [products, setProducts] = useState([]);
+  const [image, setImage] = useState(null);
+  const [imageUrl, setImageUrl] = useState(""); // Store the image URL
   const [open, setOpen] = useState(false);
+  const [productsChanged, setProductsChanged] = useState(false); // State to trigger re-fetch
   const [currentProduct, setCurrentProduct] = useState({
     id: null,
     name: "",
     description: "",
     price: "",
     quantity: "",
+    img_url: null,
   });
+
   useEffect(() => {
     getProducts();
-  }, []);
+  }, [productsChanged]);
+
   async function getProducts() {
     try {
       const { data, error } = await supabase
@@ -47,37 +55,54 @@ const ProductTable = () => {
       alert(error.message);
     }
   }
+
   const handleClickOpen = (
-    product = { id: null, name: "", description: "", price: "", quantity: "" }
+    product = {
+      id: null,
+      name: "",
+      description: "",
+      price: "",
+      quantity: "",
+      img_url: "",
+    }
   ) => {
     setCurrentProduct(product);
+    setImageUrl(product.img_url); // Set the existing image URL
     setOpen(true);
   };
 
   const handleClose = () => {
     setOpen(false);
+    setImage(null); // Clear the image on close
+    setImageUrl(""); // Clear the image URL on close
   };
 
   const handleSave = async () => {
+    let img_url = currentProduct.img_url;
+
+    if (image) {
+      // Upload image and get the URL
+      img_url = await uploadImage(image);
+    } else if (img_url === "") {
+      img_url = null; // Set to null if no image is selected
+    }
+
+    const productToSave = { ...currentProduct, img_url };
+
     if (currentProduct.id) {
       // Update existing product
-      await updateProduct(currentProduct);
-      setProducts(
-        products.map((product) =>
-          product.id === currentProduct.id ? currentProduct : product
-        )
-      );
+      await updateProduct(productToSave);
     } else {
       // Create new product
-      const newProduct = await createProduct(currentProduct);
-      setProducts([...products, newProduct]);
+      await createProduct(productToSave);
     }
+    setProductsChanged((prev) => !prev);
     handleClose();
   };
 
   const handleDelete = async (id) => {
     await deleteProduct(id);
-    setProducts(products.filter((product) => product.id !== id));
+    setProductsChanged((prev) => !prev);
   };
 
   const handleChange = (e) => {
@@ -85,13 +110,48 @@ const ProductTable = () => {
     setCurrentProduct((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleImageChange = (e) => {
+    setImage(e.target.files[0]);
+  };
+
+  async function uploadImage(file) {
+    const fileName = `${Date.now()}_${file.name}`;
+    const { data, error } = await supabase.storage
+      .from("product-images")
+      .upload(fileName, file);
+
+    if (error) {
+      alert("Error uploading image: " + error.message);
+      return null;
+    }
+
+    const { publicURL, error: urlError } = supabase.storage
+      .from("product-images")
+      .getPublicUrl(fileName);
+
+    if (urlError) {
+      alert("Error getting image URL: " + urlError.message);
+      return null;
+    }
+
+    return publicURL;
+  }
+
   async function createProduct(product) {
     try {
       const { data, error } = await supabase
         .from("products")
-        .insert([product])
+        .insert({
+          name: product.name,
+          description: product.description,
+          price: product.price,
+          quantity: product.quantity,
+          img_url: product.img_url,
+        })
         .single();
       if (error) throw error;
+      console.log(data, "this");
+
       return data;
     } catch (error) {
       alert(error.message);
@@ -144,6 +204,7 @@ const ProductTable = () => {
               <TableCell>Description</TableCell>
               <TableCell align="right">Price ($)</TableCell>
               <TableCell align="right">Quantity</TableCell>
+              <TableCell align="right">Image</TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -156,6 +217,15 @@ const ProductTable = () => {
                 <TableCell>{product.description}</TableCell>
                 <TableCell align="right">{product.price}</TableCell>
                 <TableCell align="right">{product.quantity}</TableCell>
+                <TableCell align="right">
+                  {product.img_url && (
+                    <img
+                      src={product.img_url}
+                      alt={product.name}
+                      style={{ width: 50, height: 50, objectFit: "cover" }}
+                    />
+                  )}
+                </TableCell>
                 <TableCell align="right">
                   <IconButton
                     color="primary"
@@ -214,6 +284,20 @@ const ProductTable = () => {
             type="number"
             fullWidth
           />
+          <Button variant="contained" component="label" sx={{ marginTop: 2 }}>
+            Upload Image
+            <input type="file" hidden onChange={handleImageChange} />
+          </Button>
+          {image && (
+            <Box sx={{ marginTop: 2 }}>
+              <Typography>Selected Image: {image.name}</Typography>
+            </Box>
+          )}
+          {imageUrl && !currentProduct.id && (
+            <Box sx={{ marginTop: 2 }}>
+              <Typography>Uploaded Image URL: {imageUrl}</Typography>
+            </Box>
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary">
