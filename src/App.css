@@ -1,0 +1,67 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+}
+
+.app {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+}
+
+.product-list, .product-form {
+  margin-top: 20px;
+}
+
+.product-list table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.product-list th, .product-list td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.product-list th {
+  background-color: #f2f2f2;
+}
+
+.product-form form {
+  display: flex;
+  flex-direction: column;
+}
+
+.product-form label {
+  margin-bottom: 10px;
+}
+
+.product-form input, .product-form textarea {
+  padding: 8px;
+  font-size: 16px;
+  margin-top: 5px;
+}
+
+.product-form button {
+  padding: 10px;
+  font-size: 16px;
+  background-color: #00BA50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.product-form button:hover {
+  background-color: #009844;
+}
