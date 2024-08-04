@@ -1,17 +1,23 @@
 import React from "react";
-import ProductTable from "./components/ProductTable";
-import { Container, Typography } from "@mui/material";
-import ProductCountDisplay from "./components/ProductCountDisplay";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Navbar from "./components/NavBar";
+import ProductPage from "./components/ProductPage";
+import BlogPage from "./components/BlogPage";
+import ArticleDetailPage from "./components/ArticleDetailPage";
+import BlogManagementPage from "./components/BlogManagment";
 
 function App() {
   return (
-    <Container>
-      <Typography variant="h4" gutterBottom>
-        Product List
-      </Typography>
-      <ProductCountDisplay />
-      <ProductTable />
-    </Container>
+    <Router>
+      <Navbar />
+      <Routes>
+        <Route path="/products" element={<ProductPage />} />
+        <Route path="/blog" element={<BlogPage />} />
+        <Route path="/blog/:id" element={<ArticleDetailPage />} />
+        <Route path="/blog/manage" element={<BlogManagementPage />} />
+        {/* Add other routes here */}
+      </Routes>
+    </Router>
   );
 }
 
