@@ -1,7 +1,7 @@
 import React from "react";
 import { Container, Typography } from "@mui/material";
-import ProductCountDisplay from "./components/ProductCountDisplay";
 import ProductTable from "./ProductTable";
+import ProductCountDisplay from "./ProductCountDisplay";
 const ProductPage = () => {
   return (
     <Container>
